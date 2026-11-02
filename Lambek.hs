@@ -28,5 +28,7 @@ dec_lfoc gL (DivR b a) gR p =
   or [ (dec_rinv gR1 a) && (dec_lfoc gL b gR2 p) | (gR1, gR2) <- splits gR]
 
 isGrammatical :: Lexicon sem -> [String] -> Bool
-isGrammatical lex ws = undefined
+isGrammatical lex ws = any (\ts -> dec_rinv ts (stp lex)) (mapM typesOf ws)
+  where
+    typesOf w = [ t | (w', t, _) <- items lex, w' == w ]
 
