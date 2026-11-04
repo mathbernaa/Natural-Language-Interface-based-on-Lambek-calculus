@@ -49,3 +49,56 @@ the words that we have on the string list (as each word can have more than 1 typ
 lexicon), and then we test with `dec_rinv` if any of the combinations derives the
 sentence type we are looking for, which is given by `stp lex` (the `SENTENCE : s.` line
 of the lexicon file). The sentence is grammatical if at least one combination works.
+
+### der_rinv
+
+The goal of this function is to find which terms we can build, using lambda notation,
+from the items in the context g (a list of (name, type) pairs), such that they have our
+goal type. If the context is empty, we cannot build anything, so we return [].
+
+If we fall on the case DivL a b, then we need to check whether (x, a) : g results in
+type b, so we have to call recursion: we assume we are given an extra argument x of
+type a on the left. To get a name for x we use fresh, which generates a string "a",
+"b", ... that is not present in g (we use map (V . fst) g to turn the names already in
+g into variables, so that fresh can avoid them). Then we output the result as a lambda
+abstraction L x e, for every e in der_rinv ((x, a) : g) b. The case DivR b a is the same,
+but the argument is added at the end of the list: g ++ [(x, a)].
+
+If our goal is an atomic type, then we try every item of g as the focus: we split g
+into the items to its left and to its right, and call the next function der_lfoc,
+looking for the wanted type. der_lfoc returns all the possible lists of arguments for
+the focus, and for each of them we apply the focused variable to its arguments with
+foldl A (V x) args.
+
+### der_lfoc
+
+The goal of this function is, from two lists (gL and gR, the items to the left and to
+the right of the focus) and a focus type, to find which arguments our focus needs,
+taken from gL and gR, so that our intended atomic type p is reached. It returns a list
+of all the possible argument lists ([[LExp]]), since the focus can sometimes be used in
+more than one way.
+
+Base case (rule X): if the focus is an atom, it needs no arguments, so we succeed with
+[[]] (one way, with no arguments) only if gL and gR are empty and the atom is p;
+otherwise we return [] (no way).
+
+In the case DivL a b, for every split of gL into gL1 and gL2, we need that gL2 -> a and
+that gL1 [b] gR -> p, so for the first case we call our function der_rinv (which gives
+the argument e) and for the latter we call der_lfoc recursively (which gives the
+remaining arguments es), and we output e : es. Same process for DivR b a, but splitting
+gR instead of gL.
+
+Each inner list [e1, ..., en] is one way of using the focus: it lists the
+arguments the focus must be applied to, in order, to produce the atom p. For example,
+with focus `Fears_2 : np\(s/np)`, gL = `[Conor_1 : np]` and gR = `[Fiona_3 : np]`, the
+output is `[[Conor_1, Fiona_3]]`: one way, applying the focus first to `Conor_1` and then
+to `Fiona_3`. The meaning of the whole output is:
+
+- `[]`: the focus cannot be used to reach p (no derivation);
+- `[[]]`: it reaches p directly, with no arguments (the focus is already p);
+- `[[e1, ..., en]]`: there is one way, with arguments e1, ..., en;
+- several inner lists: there are several ways (ambiguity).
+
+der_lfoc does not know the name of the focus, so it only returns the arguments; der_rinv
+then builds the full term `x e1 ... en` with `foldl A (V x) args`, here
+`Fears_2 Conor_1 Fiona_3`.
