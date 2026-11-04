@@ -102,3 +102,26 @@ to `Fiona_3`. The meaning of the whole output is:
 der_lfoc does not know the name of the focus, so it only returns the arguments; der_rinv
 then builds the full term `x e1 ... en` with `foldl A (V x) args`, here
 `Fears_2 Conor_1 Fiona_3`.
+
+### derivations
+
+This function is the version of `isGrammatical` for derivations: instead of answering
+True or False, it returns all the lambda terms that derive the sentence, one for each
+possible reading.
+
+First, each word is numbered by its position in the sentence with `zip [1..] ws`, and
+the helper `pick` turns each numbered word into all its possible (name, type) pairs
+from the lexicon, where the name is the word followed by its position (for example
+`("Conor", 1)` gives `("Conor_1", np)`). The number makes the names distinct even when
+the same word appears twice in a sentence.
+
+Then the helper `combinations` builds every possible context, choosing one entry for
+each word: the empty list of words has one context, the empty one ([[]]), and for a
+word followed by the rest of the sentence, we combine each of its entries with every
+context for the rest. This is needed because some words have more than one type
+(for example `Every`, `A` or `And`).
+
+Finally, for each context we call `der_rinv` with the sentence type `stp lex` as the
+goal, and we join all the resulting lists of terms with `concat`. If the result is
+empty the sentence is not grammatical; if it has more than one term the sentence is
+ambiguous.

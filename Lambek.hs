@@ -2,7 +2,8 @@
 
 module Lambek where
 
-import LTypes, LExp
+import LTypes
+import LExp
 
 dec_rinv :: [LTp] -> LTp -> Bool
 dec_rinv [] (Atm a) = False
@@ -45,3 +46,10 @@ der_lfoc :: [(Var, LTp)] -> LTp -> [(Var, LTp)] -> Atm -> [[LExp]]
 der_lfoc gL (Atm q) gR p = if null gL && null gR && p == q then [[]] else []
 der_lfoc gL (DivL a b) gR p = [e : es | (gL1, gL2) <- splits gL , e <- (der_rinv gL2 a), es <- (der_lfoc gL1 b gR p)]
 der_lfoc gL (DivR b a) gR p = [e : es | (gR1, gR2) <- splits gR , e <- (der_rinv gR1 a), es <- (der_lfoc gL b gR2 p)]
+
+derivations :: Lexicon sem -> [String] -> [LExp]
+derivations lex ws = concat [der_rinv ctx (stp lex) | ctx <- combinations (zip [1..] ws)]
+  where
+    combinations [] = [[]]
+    combinations (iw : rest) = [x:xs | x <- pick iw, xs <- combinations rest]
+    pick (i,w) = [ (w ++ "_" ++ show i, t) | (w', t, _) <- items lex, w' == w]
