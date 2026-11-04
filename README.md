@@ -2,6 +2,14 @@
 
 ## Lambek.hs - descriptions of the functions
 
+
+### dec_rinv
+
+We use this function to determine whether some type is derivable from a sequence of types. 
+We do so by iterating over every type in the sequence, and trying to derive the sequence using that type as the focus using dec_lfoc.
+If the type we are deriving is composite, we decompose it until an atomic type is reached.
+
+
 ### dec_lfoc
 
 We use this function to discover if, with a type in focus and a determined set of
