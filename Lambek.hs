@@ -5,14 +5,13 @@ module Lambek where
 import LTypes
 
 dec_rinv :: [LTp] -> LTp -> Bool
-dec_rinv [] _ = False
-dec_rinv listy (DivL a b) =
-  dec_rinv (a : listy) b
-dec_rinv listy (DivR a b) =
-  dec_rinv (listy ++ [b]) a
-dec_rinv listy (Atm p) =
-  or [dec_lfoc (take i listy) (listy !! i) (drop (i+1) listy) p
-      | i <- [0..(length listy) - 1]]
+dec_rinv [] (Atm a) = False
+dec_rinv gamma (DivL a b) =
+  dec_rinv (a : gamma) b
+dec_rinv gamma (DivR a b) =
+  dec_rinv (gamma ++ [b]) a
+dec_rinv gamma (Atm p) =
+  or [dec_lfoc (take i gamma) (gamma !! i) (drop (i+1) gamma) p | i <- [0..(length gamma) - 1]]
 
 
 splits :: [a] -> [([a], [a])]
