@@ -53,3 +53,11 @@ derivations lex ws = concat [der_rinv ctx (stp lex) | ctx <- combinations (zip [
     combinations [] = [[]]
     combinations (iw : rest) = [x:xs | x <- pick iw, xs <- combinations rest]
     pick (i,w) = [ (w ++ "_" ++ show i, t) | (w', t, _) <- items lex, w' == w]
+
+derivationsWithSemanticValue :: Lexicon sem -> [String] -> [(LExp, [(Var, sem)])]
+derivationsWithSemanticValue lex ws =
+  [ (expr, [(name, meaning) | (name, _, meaning) <- context]) | context <- combinations (zip [1..] ws), let typedContex = [(name, t) | (name, t, _) <- context], expr <- der_rinv typedContex (stp lex)]
+  where
+    combinations [] = [[]]
+    combinations (iw : rest) =[x:xs | x <- pick iw, xs <- combinations rest]
+    pick (i,w) = [ (w ++ "_" ++ show i, t, meaning)| (w', t, meaning) <- items lex, w' == w ]
