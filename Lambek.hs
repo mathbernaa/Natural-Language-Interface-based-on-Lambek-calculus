@@ -6,7 +6,7 @@ import LTypes
 import LExp
 
 dec_rinv :: [LTp] -> LTp -> Bool
-dec_rinv [] (Atm a) = False
+dec_rinv [] _ = False
 dec_rinv gamma (DivL a b) =
   dec_rinv (a : gamma) b
 dec_rinv gamma (DivR a b) =
