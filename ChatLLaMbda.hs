@@ -14,6 +14,15 @@ import PySupport
 -- (This will make it easier to look up words in the lexicon.)
 stdize (c:cs) = toUpper c : map toLower cs
 
+
+toPython :: [(Var, PythonCode)] -> LExp -> String
+toPython env (V x)
+  | x `elem` map fst env = "(" ++ text (head [meaning | (name, meaning) <- env, name == x]) ++ ")"
+  | otherwise = x
+toPython env (A e1 e2) = "(" ++ toPython env e1 ++ ")(" ++ toPython env e2 ++ ")"
+toPython env (L x e) = "(lambda " ++ x ++ ": " ++ toPython (filter ((/= x) . fst) env) e ++ ")"
+
+
 -- read-eval-print-loop
 repl :: Lexicon PythonCode -> PythonHandle -> IO ()
 repl elx phandle = do
