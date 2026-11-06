@@ -426,3 +426,11 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# Haskell build output
+*.o
+*.hi
+*.dyn_o
+*.dyn_hi
+ChatLLaMbda
+ChatLLaMbda.exe
