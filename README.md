@@ -169,3 +169,54 @@ This function performs a Read-Eval-Print Loop (REPL), which allows users to quer
  - Ambiguity handling: If multiple derivations are found, evaluates and prints each possible interpretation alongside its lambda calculus expression.
 
 The function recursively processes new inputs, so we can contiue interacting with the system. If no valid derivation of a sentence exists, the function displays an error message.
+
+## Questions
+Other than declarative sentences (Conor is hungry answered with True and false ) the interface also answers questions:
+```
+> Who is hungry?
+Conor, Dara, Ronan
+> Which dog does Seamus fear?
+Dara
+> Does Brian swim?
+yes
+> Which mouse sleeps?
+nobody
+```
+
+### New types
+
+We added a new atomic type 'q' for a whole question, next to 's' for a statement
+For questions about the object ("Who does Tara fear") we also use the atom 'sq': "does Tara fear" is a question with its object object missing, of type `sq / np`. 
+We use `sq` instead of `s` on purpose: if "does Tara fear" had type `s / np`, then "Does Tara fear Conor" would also be derivable as a statement, and every such question would come out as ambiguous.
+
+
+### Additions in animals.elx
+
+- `Who : q / (np \ s)` takes a verb phrase such as "is hungry" or "fears a dog" (type `np \ s`) and returns every animal it is true for. `Who : q / (sq / np)` does the same for the object ("Who does Tara fear?").
+- `Which : (q / (np \ s)) / n` and `Which : (q / (sq / np)) / n` work like `Who`, but only keep the animals of a given noun ("Which dog chases Conor?", "Which dog does Seamus fear?").
+- `Is : (q / adj) / np` asks a yes/no question about an adjective ("Is Conor hungry?").
+- `Does : (q / (np \ s)) / np` asks a yes/no question about a verb ("Does Seamus sleep?"), and `Does : ((sq / np) / (np \ (s / np))) / np` builds "does Tara fear" for object questions; its meaning `lambda x : lambda v : v(x)` applies the verb to the subject and leaves the object open.
+- The base forms `Sleep`, `Swim`, `Chase` and `Fear`, used after "does" ("Does Seamus sleep?"). They have the same meanings as `Sleeps`, `Swims`, `Chases` and `Fears`.
+- `Swims`, which was missing from the lexicon even though `aniworld.py` has a `swim` set.
+
+Word order still matters, as in the rest of the Lambek calculus: "sleeps Conor" is not a well-formed sentence, because `Sleeps : np \ s` needs its `np` on the left. 
+To ask whether Conor sleeps, the question is "Does Conor sleep?".
+
+
+
+### Additions in aniworld.py
+
+The meanings of the question words use two helper functions at the end of `aniworld.py`:
+
+- `names` joins a list of names with commas, or gives `nobody` for an empty list;
+- `yes_no` turns a boolean into `yes` or `no`.
+
+### PySupport.hs: running Python with -E
+
+We start Python with `python3 -i -E` instead of `python3 -i`. The `-E` option makes Python ignore
+environment variables such as `PYTHONSTARTUP`. In the VS Code terminal, the Python extension sets
+`PYTHONSTARTUP` to a script that prints `Ctrl click to launch VS Code Native REPL` when Python
+starts. Since `runPythonCode` reads exactly one line of output for each sentence, this extra line
+shifted every answer by one: each sentence got the answer of the previous one.
+
+(i used the help of claude to identify and fix this problem)
