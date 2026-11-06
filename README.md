@@ -1,5 +1,88 @@
 # Natural-Language-Interface-based-on-Lambek-calculus
 
+## How to run
+
+### Build
+
+From the project folder: 
+
+```
+ghc ChatLLaMbda.hs
+```
+
+This compiles all the modules and creates the program `ChatLLaMbda`.
+
+### Run
+
+```
+./ChatLLaMbda
+```
+
+The program first asks for two files: the lexicon and the facts about the world. For the
+example world of animals, answer `animals.elx` and `aniworld.py`:
+
+```
+Lexicon file: animals.elx
+Facts about the world: aniworld.py
+Starting chat...
+>
+```
+
+Then type a sentence or a question after the `>` prompt and press Enter. Capitalization does
+not matter, and punctuation such as `?` or `.` is ignored. To stop the program, press Ctrl-C.
+
+### What to expect
+
+A statement is answered with `True` or `False`, according to the facts in `aniworld.py`:
+
+```
+> Conor sleeps
+False
+> every grey cat sleeps
+True
+> Seamus sleeps and Seamus is grey
+True
+```
+
+A question is answered with the names of the animals, or with `yes` or `no`:
+
+```
+> Who is hungry?
+Conor, Dara, Ronan
+> Which dog does Seamus fear?
+Dara
+> Does Brian swim?
+yes
+> Which mouse sleeps?
+nobody
+```
+
+If a sentence has more than one meaning, every reading is shown with its lambda expression
+and its own answer:
+
+```
+> every cat fears a dog
+That sentence is ambiguous
+Sense [Every_1 Cat_2 (\a. A_4 Dog_5 (\b. Fears_3 a b))]: True
+Sense [A_4 Dog_5 (\a. Every_1 Cat_2 (\b. Fears_3 b a))]: False
+```
+
+Here the first reading is "every cat fears some dog" (true), and the second is "there is one
+dog that every cat fears" (false).
+
+If the sentence is not grammatical according to the lexicon (unknown words, or words in the
+wrong order), the program says so:
+
+```
+> sleeps Conor
+That is not a well-formed sentence
+```
+
+The words the program knows are the ones in `animals.elx`: the animals Brian, Conor, Dara,
+Fiona, Ronan, Seamus and Tara; the nouns animal, badger, cat, dog and mouse; the verbs sleeps,
+swims, chases and fears; the adjectives hungry and grey; and the words every, a, someone, and,
+is, who, which and does.
+
 ## Lambek.hs - descriptions of the functions
 
 
