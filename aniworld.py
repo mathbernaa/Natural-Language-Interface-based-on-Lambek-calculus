@@ -12,3 +12,10 @@ fear   = { ('Tara','Conor'), ('Tara','Seamus'), ('Ronan','Brian'),
 
 hungry = { 'Conor', 'Dara', 'Ronan' }
 grey   = { 'Seamus', 'Tara' }
+
+
+def names(xs): 
+    return ", ".join(xs) if xs else 'nobody'
+
+def yes_no(b):
+    return 'yes' if b else 'no'

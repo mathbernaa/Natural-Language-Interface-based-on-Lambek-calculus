@@ -33,3 +33,18 @@ A        : ((s / np) \ s) / n   = lambda q : lambda p : any (p(x) and q(x) for x
 
 And      : s \ (s / s)          = lambda x : lambda y : x and y.
 And      : adj \ (adj / adj)    = lambda p : lambda q : lambda x : p(x) and q(x).
+
+Swims    : np \ s               = lambda x : x in swim.
+
+Sleep    : np \ s               = lambda x : x in sleep.
+Swim     : np \ s               = lambda x : x in swim.
+Chase    : np \ (s / np)        = lambda x : lambda y : (x,y) in chase.
+Fear     : np \ (s / np)        = lambda x : lambda y : (x,y) in fear.
+
+Who      : q / (np \ s)         = lambda p : names([x for x in animals if p(x)]).
+Who      : q / (sq / np)        = lambda p : names([y for y in animals if p(y)]).
+Which    : (q / (np \ s)) / n   = lambda q : lambda p : names([x for x in animals if q(x) and p(x)]).
+Which    : (q / (sq / np)) / n  = lambda q : lambda p : names([y for y in animals if q(y) and p(y)]).
+Is       : (q / adj) / np       = lambda x : lambda p : yes_no(p(x)).
+Does     : (q / (np \ s)) / np  = lambda x : lambda p : yes_no(p(x)).
+Does     : ((sq / np) / (np \ (s / np))) / np = lambda x : lambda v : v(x).

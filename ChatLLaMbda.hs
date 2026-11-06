@@ -16,11 +16,18 @@ stdize (c:cs) = toUpper c : map toLower cs
 
 
 toPython :: [(Var, PythonCode)] -> LExp -> String
-toPython env (V x)
-  | x `elem` map fst env = "(" ++ text (head [meaning | (name, meaning) <- env, name == x]) ++ ")"
-  | otherwise = x
+toPython env (V x) = case lookup x env of
+  Just meaning -> "(" ++ text meaning ++ ")"
+  Nothing -> pyVar x
 toPython env (A e1 e2) = "(" ++ toPython env e1 ++ ")(" ++ toPython env e2 ++ ")"
-toPython env (L x e) = "(lambda " ++ x ++ ": " ++ toPython (filter ((/= x) . fst) env) e ++ ")"
+toPython env (L x e) = "(lambda " ++ pyVar x ++ ": " ++ toPython (filter ((/= x) . fst) env) e ++ ")"
+
+pyVar :: Var -> String
+pyVar x = "_" ++ map(\c -> if c == '\'' then '_' else c) x
+
+-- lexicon, but deriving questions (type q) instead of sentences 
+asQuestions :: Lexicon sem -> Lexicon sem
+asQuestions lex = lex { stp = Atm "q" }
 
 
 evalDerivation :: PythonHandle -> (LExp, [(Var, PythonCode)]) -> IO String
@@ -34,12 +41,14 @@ repl lexicon pythonHandle = do
   -- get a line of input
   line <- getLine
 
-  -- split it up into "standardized" words
-  let wordsList = map stdize (words line)
+  -- split it up into "standardized" words, ignoring ponctuations
+  let wordsList = map stdize (words (filter (`notElem` "?.,!") line))
   -- test if the string of words is a grammatical sentence according to the lexicon
-  let derivations = Lambek.derivationsWithSemanticValue lexicon wordsList
+  let goals = [stp lexicon, Atm "q"]
+  let derivations = Lambek.derivationsWithSemanticValue lexicon wordsList ++ Lambek.derivationsWithSemanticValue (asQuestions lexicon) wordsList
 
   case derivations of
+    _ | null wordsList -> return ()
     [] -> putStrLn "That is not a well-formed sentence"
 
     [derivation] -> do

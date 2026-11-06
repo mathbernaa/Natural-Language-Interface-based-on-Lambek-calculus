@@ -11,7 +11,7 @@ type PythonHandle = (Handle,Handle,Handle,ProcessHandle)
 launchPython :: PythonCode -> IO PythonHandle
 launchPython prelude = do
   (Just hin, Just hout, Just herr, ph) <-
-    createProcess (proc "python3" ["-i"])
+    createProcess (proc "python3" ["-i", "-E"])
     { std_in  = CreatePipe, std_out = CreatePipe, std_err = CreatePipe }
   hSetBuffering hin LineBuffering
   hSetBuffering hout NoBuffering
