@@ -23,24 +23,43 @@ toPython env (A e1 e2) = "(" ++ toPython env e1 ++ ")(" ++ toPython env e2 ++ ")
 toPython env (L x e) = "(lambda " ++ x ++ ": " ++ toPython (filter ((/= x) . fst) env) e ++ ")"
 
 
--- read-eval-print-loop
+evalDerivation :: PythonHandle -> (LExp, [(Var, PythonCode)]) -> IO String
+evalDerivation phandle (expr, env) = runPythonCode phandle (PCode ("print(" ++ toPython env expr ++ ")"))
+
+
 repl :: Lexicon PythonCode -> PythonHandle -> IO ()
-repl elx phandle = do
+repl lexicon pythonHandle = do
   -- print the prompt
   putStr "> "
   -- get a line of input
   line <- getLine
+
   -- split it up into "standardized" words
-  let ws = map stdize $ words line
+  let wordsList = map stdize (words line)
   -- test if the string of words is a grammatical sentence according to the lexicon
-  let ds = Lambek.derivations elx ws
-  if null ds
-    then putStrLn "That is not a well-formed sentence"
-    else do
-      putStrLn "I can derive your sentence as follows:" 
-      mapM_ (\d -> putStrLn ("   " ++ prettyLExp d)) ds
+  let derivations = Lambek.derivationsWithSemanticValue lexicon wordsList
+
+  case derivations of
+    [] -> putStrLn "That is not a well-formed sentence"
+
+    [derivation] -> do
+      result <- evalDerivation pythonHandle derivation
+      putStrLn result
+
+    _ -> do
+      putStrLn "That sentence is ambiguous"
+      printDerivations derivations
+
   -- repeat
-  repl elx phandle
+  repl lexicon pythonHandle
+
+  where
+    printDerivations [] = return ()
+    printDerivations ((expression, environment):rest) = do
+      result <- evalDerivation pythonHandle (expression, environment)
+      putStrLn ("Sense [" ++ prettyLExp expression ++ "]: " ++ result)
+      printDerivations rest
+
       
 main = do
   -- send console output immediately to the user
