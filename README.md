@@ -1,6 +1,6 @@
 # Natural-Language-Interface-based-on-Lambek-calculus
 
-## How to run
+## How to run (used AI to write this part)
 
 ### Build
 
@@ -93,7 +93,7 @@ We do so by iterating over every type in the sequence, and trying to derive the 
 If the type we are deriving is composite, we decompose recursively it until an atomic type is reached, then, we try to derive it using dec_lfoc.
 
 
-### dec_lfoc
+### dec_lfoc (used AI for the equations)
 
 We use this function to discover if, with a type in focus and a determined set of
 arguments in a certain order to its left and right, we can reach our atomic goal:
@@ -273,7 +273,7 @@ For questions about the object ("Who does Tara fear") we also use the atom 'sq':
 We use `sq` instead of `s` on purpose: if "does Tara fear" had type `s / np`, then "Does Tara fear Conor" would also be derivable as a statement, and every such question would come out as ambiguous.
 
 
-### Additions in animals.elx
+### Additions in animals.elx (used AI to write this part)
 
 - `Who : q / (np \ s)` takes a verb phrase such as "is hungry" or "fears a dog" (type `np \ s`) and returns every animal it is true for. `Who : q / (sq / np)` does the same for the object ("Who does Tara fear?").
 - `Which : (q / (np \ s)) / n` and `Which : (q / (sq / np)) / n` work like `Who`, but only keep the animals of a given noun ("Which dog chases Conor?", "Which dog does Seamus fear?").
