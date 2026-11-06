@@ -6,8 +6,8 @@
 ### dec_rinv
 
 We use this function to determine whether some type is derivable from a sequence of types. 
-We do so by iterating over every type in the sequence, and trying to derive the sequence using that type as the focus using dec_lfoc.
-If the type we are deriving is composite, we decompose it until an atomic type is reached.
+We do so by iterating over every type in the sequence, and trying to derive the sequence using that type as the focus and claling dec_lfoc on it.
+If the type we are deriving is composite, we decompose recursively it until an atomic type is reached, then, we try to derive it using dec_lfoc.
 
 
 ### dec_lfoc
@@ -133,3 +133,39 @@ Finally, for each context we call `der_rinv` with the sentence type `stp lex` as
 goal, and we join all the resulting lists of terms with `concat`. If the result is
 empty the sentence is not grammatical; if it has more than one term the sentence is
 ambiguous.
+
+
+### derivationsWithSemanticValue
+
+This function iterates over all possible derivable meanings of a sentence, generating ones that make sense grammatically, as well as their semantic meanings. 
+
+Does everything "derivations" does, but returns the meaning, to be used later, when implementing a Python interface. 
+
+
+### toPython
+
+This funciton converts a lambda expression into a piece of executable Python code. 
+ - a variable gets sent to the corresponding Python meaning from the environment, or into a Python variable name
+ - an application gets sent to a Python function call
+ - a lambda abstraction gets sent to a Python lambda function
+
+
+ ### pyVar 
+
+This function converts lambda calculus variable names into valid Python variables: prefixing them with an underscore, replacing apostrophes with underscores.
+
+
+
+### repl
+
+This function performs a Read-Eval-Print Loop (REPL), which allows users to query the system by entering sentences.
+
+ - Input: Reads user input, removes punctuation, standardizes the words.
+
+ - Derivation generation: Attempts to parse the input to get a statement or a question.
+
+ - Evaluation: If only one derivation is found, evaluates its Python semantics and prints the result.
+
+ - Ambiguity handling: If multiple derivations are found, evaluates and prints each possible interpretation alongside its lambda calculus expression.
+
+The function recursively processes new inputs, so we can contiue interacting with the system. If no valid derivation of a sentence exists, the function displays an error message.
